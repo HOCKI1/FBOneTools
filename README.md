@@ -56,9 +56,8 @@ Files that can be ported from console to PC via BFBC2 File Porter:
 
 ## Build & Run Requirements
 
-* [Visual Studio 2017](https://visualstudio.microsoft.com/vs/older-downloads/)
-* [.NET Framework 4.6.1](https://www.microsoft.com/en-us/download/details.aspx?id=49982)
-* [Python 2.7](https://www.python.org/downloads/release/python-2718/)
+* [Visual Studio 2019+](https://visualstudio.microsoft.com/ru/downloads/)
+* [.NET Framework 4.8](https://www.microsoft.com/en-us/download/details.aspx?id=49982)
 * (Optional) [Windows 10](https://www.microsoft.com/en-us/windows/get-windows-10) - It's most likely required to preview dds files properly
 * (Optional) [Bink Video Codec](http://www.radgametools.com/bnkdown.htm) - Required to preview video files
 
@@ -93,9 +92,8 @@ You can download the latest stable build on [Nexus Mods](https://www.nexusmods.c
 
 ## Build & Run Requirements
 
-* [Visual Studio 2017](https://visualstudio.microsoft.com/vs/older-downloads/)
-* [.NET Framework 4.6.1](https://www.microsoft.com/en-us/download/details.aspx?id=49982)
-* [Python 2.7](https://www.python.org/downloads/release/python-2718/)
+* [Visual Studio 2019+](https://visualstudio.microsoft.com/ru/downloads/)
+* [.NET Framework 4.8](https://www.microsoft.com/en-us/download/details.aspx?id=49982)
 
 NuGet Packages:
 * [MahApps.Metro 1.6.5](https://www.nuget.org/packages/MahApps.Metro/1.6.5)
