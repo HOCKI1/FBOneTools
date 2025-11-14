@@ -1,8 +1,10 @@
 ###############################
 #   Created by Frankelstner   #
 ###############################
+#       Edited by Hocki1      #
+###############################
 
-##Requires Python 2.7. Rename to .py and drag and drop files onto the script to convert from dbx to xml and vice versa.
+##Requires Python 3. Rename to .py and drag and drop files onto the script to convert from dbx to xml and vice versa.
 
 ##Python does not have single precision floats. The struct module allows retrieving either single or double precision floats,
 ##but eventually the numbers are treated as doubles anyway. Python then tries to find the shortest string representation
@@ -46,7 +48,7 @@ import os
 import sys
 from struct import unpack,pack
 from binascii import hexlify,unhexlify
-from cStringIO import StringIO
+from io import StringIO
 from collections import OrderedDict
 
 XMLHEADER="""<?xml version="1.0"?>\r\n"""
@@ -108,11 +110,14 @@ except:
 ##  if hash
 ##  if small positive number (first byte is 00)
 ##  if float would be nan/inf
-def intfloat(rawnum,name):
-    intnum=unpack(">i",rawnum)[0]
-    if name in HASHES: return `intnum`
-    if intnum>>24==0 or intnum>>23 in (255,-1): return `intnum`
-    return formatfloat(unpack(">f",rawnum)[0])
+def intfloat(rawnum, name):
+    intnum = unpack(">i", rawnum)[0]
+    if name in HASHES:
+        return str(intnum)
+    if (intnum >> 24) == 0 or (intnum >> 23) in (255, -1):
+        return str(intnum)
+    return formatfloat(unpack(">f", rawnum)[0])
+
     
 
 def toxml(filename):
@@ -121,7 +126,7 @@ def toxml(filename):
     if fi.read(8)!="{binary}":
         fi.close()
         return
-    print filename
+    print(filename)
     global f
     f=StringIO(fi.read()) # dump the file in memory
     fi.close()
@@ -131,7 +136,7 @@ def toxml(filename):
     totoffset,zero,reloffset,numofstrings=unpack(">IIII",f.read(16))
     stringoffsets=unpack(">"+"I"*numofstrings,f.read(4*numofstrings))
     #calculate the length of the strings and grab them
-    lengths=[stringoffsets[i+1]-stringoffsets[i] for i in xrange(numofstrings-1)]
+    lengths=[stringoffsets[i+1]-stringoffsets[i] for i in range(numofstrings-1)]
     lengths.append(reloffset-4*numofstrings-stringoffsets[-1])
     strings=[f.read(l)[:-1] for l in lengths]
     
@@ -152,7 +157,7 @@ def toxml(filename):
             numofattrib=int(numofattrib)
 
 
-            attribs=[[strings[read128()],strings[read128()]] for i in xrange(numofattrib)]
+            attribs=[[strings[read128()],strings[read128()]] for i in range(numofattrib)]
             if numofattrib: tag=tablevel*TABLEN+"<"+prefix+" "+" ".join([attrib[0]+'="'+attrib[1]+'"' for attrib in attribs])
             else: tag=tablevel*TABLEN+"<"+prefix
 
@@ -175,8 +180,8 @@ def toxml(filename):
                         contentlist=[None]*numofnums
                         #go through fourth, eight... element and check if it is always 00 or cd
                         numtype=0
-                        rawnums=[f.read(4) for i in xrange(numofnums)]
-                        for i in xrange(3,numofnums,4):
+                        rawnums=[f.read(4) for i in range(numofnums)]
+                        for i in range(3,numofnums,4):
                             rawnum=rawnums[i]
                             if not numtype:
                                 if rawnum=="\x00\x00\x00\x00": numtype=1
@@ -189,11 +194,11 @@ def toxml(filename):
                                 break
                         #run through all nums now
                         if numtype==1:
-                            for i in xrange(numofnums):
+                            for i in range(numofnums):
                                 if i%4==3: contentlist[i]="*zero*"
                                 else: contentlist[i]=(intfloat(rawnums[i],attribs[0][1]))
                         elif numtype==2:
-                            for i in xrange(numofnums):
+                            for i in range(numofnums):
                                 if i%4==3: contentlist[i]="*nonzero*"
                                 else: contentlist[i]=(intfloat(rawnums[i],attribs[0][1]))
                         else:
@@ -201,11 +206,14 @@ def toxml(filename):
                             
                         content="/".join(contentlist)
                     else:
-                        content="/".join([intfloat(f.read(4),attribs[0][1]) for x in xrange(numofnums)])
+                        content="/".join([intfloat(f.read(4),attribs[0][1]) for x in range(numofnums)])
                     
-                elif numlength==8: content="/".join([`x` for x in unpack(">"+"d"*numofnums,f.read(8*numofnums))])
-                else: content="/".join([`x` for x in unpack(">"+"H"*numofnums,f.read(2*numofnums))])
-                out.write(tag+">"+content+"</"+prefix+">\r\n")
+                elif numlength == 8:
+                    content = "/".join([repr(x) for x in unpack(">" + "d" * numofnums, f.read(8 * numofnums))])
+                else:
+                    content = "/".join([repr(x) for x in unpack(">" + "H" * numofnums, f.read(2 * numofnums))])
+                out.write(tag + ">" + content + "</" + prefix + ">\r\n")
+
 
             else: #typ 6
                 f.seek(1,1) #\x01
@@ -238,7 +246,7 @@ def readline(line):
     else:
         prefix=todic(tag[:prefixlen])
         stuff=tag[prefixlen+1:].split('"')
-        for i in xrange(0,len(stuff)-1,2):
+        for i in range(0,len(stuff)-1,2):
             attribs+=(stuff[i].strip('= '),stuff[i+1])
     numofattribs=len(attribs)/2
     attribbytes="".join([todic(attrib) for attrib in attribs])
@@ -264,56 +272,62 @@ def readline(line):
     numstrings=content.split("/")
     if attribs[1] in HALVES:
         try:
-            nums=[pack(">H",int(numstring)) for numstring in numstrings]
-            numlen="\x02"
-        except:
-            raw_input("Invalid short int: "+attribs[1]+"="+numstring+"\r\nValid values: 0<=int<=65536")
+            nums = [pack(">H", int(numstring)) for numstring in numstrings]
+            numlen = b"\x02"
+        except Exception:
+            print("Invalid short int: {}={}\nValid values: 0<=int<=65536".format(attribs[1], numstring))
             return
+
     elif attribs[1] in DOUBLES:
         try:
-            nums=[pack(">d",float(numstring)) for numstring in numstrings]
-            numlen="\x08"
-        except:
-            raw_input("Invalid double float: "+attribs[1]+"="+numstring)
+            nums = [pack(">d", float(numstring)) for numstring in numstrings]
+            numlen = b"\x08"
+        except Exception:
+            print("Invalid double float: {}={}".format(attribs[1], numstring))
             return
+        
     elif attribs[1] in HASHES:
         try:
-            nums=[pack(">i",int(numstring)) for numstring in numstrings]
-            numlen="\x04"
-        except: #"Id" can be hash integer but also string, meh
-            if attribs[1]=="Id": return prefix+unhexlify("2"+str(numofattribs))+attribbytes+todic(content)
+            nums = [pack(">i", int(numstring)) for numstring in numstrings]
+            numlen = b"\x04"
+        except Exception:
+            if attribs[1] == "Id":
+                return prefix + unhexlify("2" + str(numofattribs)) + attribbytes + todic(content)
             else:
-                raw_input("Invalid int: "+attribs[1]+"="+numstring)
+                print("Invalid int: {}={}".format(attribs[1], numstring))
                 return
+
     else:
-        nums=[]
+        nums = []
         for numstring in numstrings:
-            if numstring=="*zero*":
-                nums.append("\x00\x00\x00\x00")
+            if numstring == "*zero*":
+                nums.append(b"\x00\x00\x00\x00")
                 continue
-            elif numstring=="*nonzero*":
-                nums.append("\xcd\xcd\xcd\xcd")
+            elif numstring == "*nonzero*":
+                nums.append(b"\xcd\xcd\xcd\xcd")
                 continue
-   
+
             try:
-                intnum=int(numstring) #int(5.6)->5 BUT int("5.6")->error and int("-5")->-5
-                if intnum>>24==0 or intnum>>23 in (255,-1): nums.append(pack(">i",intnum))
+                intnum = int(numstring)
+                if (intnum >> 24) == 0 or (intnum >> 23) in (255, -1):
+                    nums.append(pack(">i", intnum))
                 else:
-                    raw_input("Invalid integer: "+attribs[1]+"="+numstring+"\r\nValid values: -8388608<=int<=16777215 and 2139095040<=int<=2147483647")
+                    print("Invalid integer: {}={}\nValid values: -8388608<=int<=16777215 and 2139095040<=int<=2147483647".format(attribs[1], numstring))
                     return
-            except:
+            except Exception:
                 try:
-                    floathex=pack(">f",float(numstring))
-                    if floathex[0]=="\x00" and floathex!="\x00\x00\x00\x00":
-                        raw_input("Float too small: "+attribs[1]+"="+numstring+"\r\n2.351e-38<=float")
+                    floathex = pack(">f", float(numstring))
+                    if floathex[0] == 0 and floathex != b"\x00\x00\x00\x00":
+                        print("Float too small: {}={}\n2.351e-38<=float".format(attribs[1], numstring))
                         return
                     else:
                         nums.append(floathex)
-                except ValueError: return prefix+unhexlify("2"+str(numofattribs))+attribbytes+todic(content) #the value is no number -> type 2
-                except:
-                    raw_input("Float too large: "+attribs[1]+"="+numstring)
+                except ValueError:
+                    return prefix + unhexlify("2" + str(numofattribs)) + attribbytes + todic(content)
+                except Exception:
+                    print("Float too large: {}={}".format(attribs[1], numstring))
                     return
-        numlen="\x04"
+        numlen = b"\x04"
         
     numofnums=write128(len(nums))
     return prefix+"\x71"+attribbytes+numofnums+numlen+"".join(nums)
@@ -326,7 +340,7 @@ def todbx(filename):
     if fi.read(23)!=XMLHEADER:
         fi.close()
         return
-    print filename
+    print(filename)
     global dic
     f=StringIO(fi.read()) # dump the file in memory
     fi.close()
@@ -357,31 +371,39 @@ def todbx(filename):
 
 
 
-def lp(path): #long pathnames
-    if path[:4]=='\\\\?\\': return path
-    elif path=="": return path
-    else: return unicode('\\\\?\\' + os.path.normpath(path))
+def lp(path):  # long pathnames
+    if path[:4] == '\\\\?\\':
+        return path
+    elif path == "":
+        return path
+    else:
+        return '\\\\?\\' + os.path.normpath(path)
+
 
 
 def main():
-    inp=[lp(p) for p in sys.argv[1:]]
-    mode=""
+    inp = [lp(p) for p in sys.argv[1:]]
+    mode = ""
     for ff in inp:
         if os.path.isfile(ff):
-            if ff[-4:]==".xml": todbx(ff)
-            elif ff[-4:]==".dbx": toxml(ff)
+            if ff[-4:] == ".xml":
+                todbx(ff)
+            elif ff[-4:] == ".dbx":
+                toxml(ff)
         else:
-            if not mode: mode=raw_input("Convert everything from selected folders to (d)bx or (x)ml\r\n")
-            if mode.lower()=="d":
-                for dir0,dirs,files in os.walk(ff):
+            if not mode:
+                mode = input("Convert everything from selected folders to (d)bx or (x)ml\n")
+            if mode.lower() == "d":
+                for dir0, dirs, files in os.walk(ff):
                     for f in files:
-                        todbx(dir0+"\\"+f)
-            elif mode.lower()=="x":
-                for dir0,dirs,files in os.walk(ff):
+                        todbx(os.path.join(dir0, f))
+            elif mode.lower() == "x":
+                for dir0, dirs, files in os.walk(ff):
                     for f in files:
-                        toxml(dir0+"\\"+f)
-                        
-try:  
+                        toxml(os.path.join(dir0, f))
+
+try:
     main()
-except Exception, e:
-    raw_input(e)
+except Exception as e:
+    print("Error:", e)
+

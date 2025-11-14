@@ -3,10 +3,12 @@
 ###############################
 #       Edited by Heico       #
 ###############################
+#       Edited by Hocki1      #
+###############################
 
 from struct import pack,unpack
 import gzip
-from cStringIO import StringIO
+from io import StringIO
 import sys
 import os
 import tempfile
@@ -82,7 +84,7 @@ def packer(sourcefolder, targetfile="", compressionlevel=compressionlevel, tmpfi
     sourcefolder=lp(sourcefolder)
     if not os.path.isdir(sourcefolder) or sourcefolder[-5:]!=" FbRB": return
     
-    print sourcefolder[4:] ###################
+    print(sourcefolder[4:]) ###################
     toplevellength=len(sourcefolder)+1 #for the RELATIVE pathnames to put in the fbrb
 
     if not targetfile: targetfile=sourcefolder[:-5]+".fbrb"
@@ -176,7 +178,7 @@ def unpacker(sourcefilename,targetfolder="",tmpfile=0):
     if f.read(4)!="FbRB":
         f.close()
         return
-    print sourcefilename[4:]
+    print(sourcefilename[4:])
     
     if not targetfolder: targetfolder=sourcefilename[:-5]+" FbRB\\"
     else: targetfolder=lp(targetfolder)+" FbRB\\"
@@ -236,34 +238,40 @@ def unpacker(sourcefilename,targetfolder="",tmpfile=0):
 
     zippy2.close(), part2.close()
 
-def lp(path): #long pathnames
-    if path[:4]=='\\\\?\\': return path
-    elif path=="": return path
-    else: return unicode('\\\\?\\' + os.path.normpath(path))
+def lp(path):  # long pathnames
+    if path[:4] == '\\\\?\\':
+        return path
+    elif path == "":
+        return path
+    else:
+        return '\\\\?\\' + os.path.normpath(path)
+
 
 #give fbrb folder->pack
 #give fbrb file->extract
 #give other folder->extract/pack
 #sadly os.walk is rather limited for this purpose, I cannot keep it out of "marked" fbrb folders
 def main():
-    inp=[lp(p) for p in sys.argv[1:]]
-    mode=""
+    inp = [lp(p) for p in sys.argv[1:]]
+    mode = ""
     for ff in inp:
-        if os.path.isdir(ff) and ff[-5:]==" FbRB":
-            packer(ff,packfolder,compressionlevel,packtmpfile)
+        if os.path.isdir(ff) and ff[-5:] == " FbRB":
+            packer(ff, packfolder, compressionlevel, packtmpfile)
         elif os.path.isfile(ff):
-            unpacker(ff,unpackfolder,unpacktmpfile)
-        else: #handle all fbrb within this folder; but first ask user input
-            if not mode: mode=raw_input("(u)npack or (p)ack everything from selected folder(s)\r\n")
-            if mode.lower()=="u":
-                for dir0,dirs,files in os.walk(ff):
+            unpacker(ff, unpackfolder, unpacktmpfile)
+        else:
+            if not mode:
+                mode = input("(u)npack or (p)ack everything from selected folder(s)\n")
+            if mode.lower() == "u":
+                for dir0, dirs, files in os.walk(ff):
                     for f in files:
-                        unpacker(dir0+"\\"+f,unpackfolder,unpacktmpfile)
-            elif mode.lower()=="p":
-                for dir0,dirs,files in os.walk(ff):
-                    packer(dir0,packfolder,compressionlevel,packtmpfile)
+                        unpacker(os.path.join(dir0, f), unpackfolder, unpacktmpfile)
+            elif mode.lower() == "p":
+                for dir0, dirs, files in os.walk(ff):
+                    packer(dir0, packfolder, compressionlevel, packtmpfile)
 
-try:  
+try:
     main()
-except Exception, e:
-    raw_input(e)
+except Exception as e:
+    print("Error:", e)
+

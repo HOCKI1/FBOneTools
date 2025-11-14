@@ -3,6 +3,8 @@
 ###############################
 #       Edited by Heico       #
 ###############################
+#       Edited by Hocki1      #
+###############################
 
 # bigdecoder.py, by aderyn@gmail.com, 2009-03-01
 #
@@ -47,22 +49,22 @@ class entry:
 	pass
 
 if len(sys.argv) != 3:
-	print "usage: python bigdecoder.py [file] [target]"
+	print("usage: python bigdecoder.py [file] [target]")
 	exit()
 	
-print "BIG-file decoder by aderyn@gmail.com"
+print("BIG-file decoder by aderyn@gmail.com")
 
 filePath = sys.argv[1]
 targetDir = sys.argv[2]
 
 if not os.path.exists(filePath):
-	print "Requested file doesn't exist."
+	print("Requested file doesn't exist.")
 	exit()
 	
 if targetDir[-1] != "\\":
 	targetDir += "\\"
 	
-print "Processing " + filePath
+print("Processing " + filePath)
 
 # open the file in binary read mode.
 # without the b-flag the tell-method
@@ -74,26 +76,24 @@ file = open(filePath, "rb")
 # this seems to vary. zero hour uses BIGF
 header = file.read(4)
 if header != "BIGF":
-	print "Invalid file format."
+	print("Invalid file format.")
 	exit()
 
 # this seems to be the only value encoded in
 # little-endian order.
-(size,) = struct.unpack("I", file.read(4))
-print "size: %d" % (size,)
+(size,) = struct.unpack("<I", file.read(4))
+print("size: %d" % size)
 
 (entryCount,indexSize) = struct.unpack(">II", file.read(8))
-print "entry count: %d" % (entryCount,)
-print "index size: %d" % (indexSize,)
-
-print
+print("entry count: %d" % entryCount)
+print("index size: %d" % indexSize)
 
 # read the index table:
 
 # assume that the file contains the amount of 
 # entries specified by the global header
 entries = []
-for j in xrange(0, entryCount):
+for j in range(0, entryCount):
 
 	(entryPos,entrySize) = struct.unpack(">II", file.read(8))
 	
@@ -115,43 +115,36 @@ for j in xrange(0, entryCount):
 	
 	entries.append(e)
 
-# iterate through the index entries and
-# copy the data into separate files.	
+# iterate through the index entries and copy the data into separate files.
 for i, e in enumerate(entries):
-	print "opening %s (size: %d, position: %d)" % (e.name,e.size,e.position)
-	print "file %d of %d" % (i+1, entryCount)
-	
-	# calculate the path where the file will be created
-	# in order to ensure that the directories needed actually
-	# exists
-	fileTargetDir = targetDir + e.name[0:e.name.rfind("\\")] + "\\"
-	fileName = e.name[e.name.rfind("\\")+1:]
-	targetPath = fileTargetDir + fileName
-	
-	# create the directories if they don't exist.
-	if not os.path.exists(fileTargetDir):
-		os.makedirs(fileTargetDir)
-		
-	# skip files that already exist.
-	if os.path.exists(targetPath):
-		print "%s exists. Skipping." % (targetPath,)
-		continue
-	
-	print "Opening %s for writing" % (targetPath,)
-	targetFile = open(targetPath, "wb")
-	
-	print "Seeked to %d" % (e.position,)
-	file.seek(e.position)
-	
-	print "Starting data transfer"
-	for i in xrange(0, e.size):
-		byte = file.read(1)
-		targetFile.write(byte)
-		
-	print "Wrote %d bytes" % (e.size,)
-	
-	print "Done, closing file."
-	targetFile.close()
-	
-	print
+    print("opening %s (size: %d, position: %d)" % (e.name, e.size, e.position))
+    print("file %d of %d" % (i + 1, entryCount))
+
+    # calculate the path where the file will be created
+    fileTargetDir = os.path.join(targetDir, e.name[:e.name.rfind("\\")])
+    fileName = e.name[e.name.rfind("\\") + 1:]
+    targetPath = os.path.join(fileTargetDir, fileName)
+
+    # create the directories if they don't exist.
+    if not os.path.exists(fileTargetDir):
+        os.makedirs(fileTargetDir)
+
+    # skip files that already exist.
+    if os.path.exists(targetPath):
+        print("%s exists. Skipping." % targetPath)
+        continue
+
+    print("Opening %s for writing" % targetPath)
+    with open(targetPath, "wb") as targetFile:
+        print("Seeked to %d" % e.position)
+        file.seek(e.position)
+
+        print("Starting data transfer")
+        for _ in range(e.size):
+            byte = file.read(1)
+            targetFile.write(byte)
+
+        print("Wrote %d bytes" % e.size)
+
+    print("Done, closing file.\n")
 	

@@ -177,7 +177,7 @@ namespace BFBC2Toolkit.Windows
                 {
                     SharedSettings.PathToPython = pathOld;
 
-                    MessageBox.Show("Incorrect version of Python detected!\nIt must be version 2.7!", "Error");
+                    MessageBox.Show("Incorrect version of Python detected!\nIt must be version 3!", "Error");
                 }
             }
         }

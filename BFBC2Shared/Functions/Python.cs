@@ -74,25 +74,33 @@ namespace BFBC2Shared.Functions
 
         public static bool CheckVersion()
         {
-            var processInfo = new ProcessStartInfo();
-            processInfo.FileName = @"cmd.exe"; 
-            processInfo.Arguments = String.Format(@"/c {0}\{1} ", Path.GetDirectoryName(SharedSettings.PathToPython), "python --version");
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.CreateNoWindow = true;
-
-            using (var process = Process.Start(processInfo))
+            try
             {
-                using (StreamReader reader = process.StandardError)
+                var processInfo = new ProcessStartInfo
                 {
-                    string result = reader.ReadToEnd();
+                    FileName = SharedSettings.PathToPython.Replace("pythonw.exe", "python.exe"),
+                    Arguments = "--version",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
 
-                    if (result.StartsWith("Python 2.7"))
-                        return true;
-                    else
-                        return false;
+                using (var process = Process.Start(processInfo))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    string versionInfo = output + error;
+
+                    return versionInfo.Contains("Python 3.11");
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+                return false;
             }
         }
     }

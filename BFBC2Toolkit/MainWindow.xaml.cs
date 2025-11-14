@@ -1219,7 +1219,7 @@ namespace BFBC2Toolkit
 
             if (!File.Exists(SharedSettings.PathToPython))
             {
-                MessageBox.Show("Unable to locate Python 2.7 installation!\nPlease select pythonw.exe...", "Error");
+                MessageBox.Show("Unable to locate Python 3 installation!\nPlease select pythonw.exe...", "Error");
 
                 string path = Python.ChangePath();
 
@@ -1235,7 +1235,7 @@ namespace BFBC2Toolkit
 
                     if (!isCorrectPythonVersion)
                     {
-                        MessageBox.Show("Incorrect version of Python detected!\nIt must be version 2.7!\nPress 'OK' to close the app.", "Error");
+                        MessageBox.Show("Incorrect version of Python detected!\nIt must be version 3!\nPress 'OK' to close the app.", "Error");
 
                         Environment.Exit(0);
                     }                    
