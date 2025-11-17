@@ -1,0 +1,25 @@
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:\\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
+INFO:root:Script started
+INFO:root:Unpacking file: \\?\C:\Users\Makso\Downloads\PS3_GAME\USRDIR\dist\ps3\levels\sp_08_ghost_town\level-00.fbrb
